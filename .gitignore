@@ -1,3 +1,7 @@
+Meta/
 Test/
 Train/
 *.zip
+
+venv/
+.ipynb_checkpoints/

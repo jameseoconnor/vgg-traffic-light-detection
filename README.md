@@ -1,4 +1,3 @@
-The dataset can be found here: ![Dataset](https://www.kaggle.com/meowmeowmeowmeowmeow/gtsrb-german-traffic-sign)
 
 # Training a VGG16 Network to Classify Traffic Signs using the German Traffic Sign Recognition Benchmark (GTSRB)
 
@@ -15,6 +14,8 @@ A lot of work has been put into CNNs in the past twenty years. Thankfully, much 
 
 The aim of this report is to retrain a CNN using images of traffic signs, to see if it can be used to recognise previously unseen traffic signs. Transfer learning for image detection involves reusing existing models that have been developed for standard vison benchmark sets such as ImageNet (Russakovsky, et al., 2015). We can then re-use them and extend them for our own use without having to retrain the models from scratch, which would be time consuming and computationally expensive. The VGG classifier was developed in 2015 by Simonyan &amp; Zisserman (2015) and consists of a 16-19 layer network and today it is widely used for many forms of image recognition. The Visual Geometry Group (VGG) sixteen layer network will be used in this report as a classifier. The image data used is the German Traffic Sign Recognition Benchmark (GTSRB) (Kaggle, 2018).
 
+
+The dataset can be found here: [Dataset](https://www.kaggle.com/meowmeowmeowmeowmeow/gtsrb-german-traffic-sign)
 
 # 2. Hardware &amp; Programs
 

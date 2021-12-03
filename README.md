@@ -10,18 +10,18 @@ A lot of work has been put into CNNs in the past twenty years. Thankfully, much 
 
 **Keywords:** VGG16, Traffic Light Detection, GTSRB, CNN, Transfer Learning
 
-1.
-# Introduction &amp; Plan
+
+# 1. Introduction &amp; Plan
 
 The aim of this report is to retrain a CNN using images of traffic signs, to see if it can be used to recognise previously unseen traffic signs. Transfer learning for image detection involves reusing existing models that have been developed for standard vison benchmark sets such as ImageNet (Russakovsky, et al., 2015). We can then re-use them and extend them for our own use without having to retrain the models from scratch, which would be time consuming and computationally expensive. The VGG classifier was developed in 2015 by Simonyan &amp; Zisserman (2015) and consists of a 16-19 layer network and today it is widely used for many forms of image recognition. The Visual Geometry Group (VGG) sixteen layer network will be used in this report as a classifier. The image data used is the German Traffic Sign Recognition Benchmark (GTSRB) (Kaggle, 2018).
 
-1.
-# Hardware &amp; Programs
+
+# 2. Hardware &amp; Programs
 
 The hardware used to build and test the models was a 2 GHz (boost to 3.7GHz) Quad-Core Intel Core i5 processor and 16 GB LPDDR4X RAM. Keras, a python interface library for TensorFlow was used to access the VGG16 network and to construct the final layers of the CNN. Jupyter notebook was used as an IDE, notebook [(GitHub Code)](https://github.com/jameseoconnor/vgg-traffic-light-detection)
 
-1.
-# Pre-Processing Data
+
+# 3. Pre-Processing Data
 
 The three main tasks undertaken to pre-process the data was to resize the images, balance the dataset and normalise the images.
 
@@ -29,9 +29,11 @@ The three main tasks undertaken to pre-process the data was to resize the images
 
 The first task was to analyse the size of the training and test images by height and width. All images are color images, therefore each has three channels, RGB. Initial analysis of the training data showed the training data (Figure 1 left) is of median size 50.83 x 50.32 x 3 (w \* h \* d) with a 25 – 243 width interval and 23-225 height interval. Initial analysis of the test data (Figure 1 right) showed the data is of median size 50.5 x 50.36 x 3 (w \* h \* d) with a 25 – 266 width interval and 23-232 height interval.
 
-![](RackMultipart20211203-4-13g499e_html_778c549d4e35171e.png) ![](RackMultipart20211203-4-13g499e_html_f2c815f2d13e811d.png)
 
-**Figure 1: Width and Height of Training &amp; Test Images**
+
+<p align="center">
+<img src="./images/figure_1.png" width=80%>
+</p>
 
 Square images need to be generated in order for the VGG16 network to accept the images as inputs. OpenCV was used to first square the images using cv2.warpAffine(), followed by cv2.resize() to resize the squared image to the desired shape. Once the images had been resized, they were combined into two NumPy arrays, one for the resized image matrix and the other for the label, our y value. As the training data was consecutively labelled by sub-folder, which is the class, the training data array were shuffled to randomise the data. As the minimum size input for the VGG16 is 32px\*32px, an initial value of 50px was selected for the width and height of the images, close to the median weights and heights from the datasets.
 
@@ -39,9 +41,9 @@ Square images need to be generated in order for the VGG16 network to accept the 
 
 The number of images in each category varied greatly. Looking at a simple bar plot from the training dataset, shows a range from 210 – 2250, which is approximately a ten-fold difference between number of samples in different classes. There are a number of techniques that can used to balance this dataset. One of the ways is through data augmentation. This has been shown to be effective in increasing accuracy of training of an unbalanced dataset for traffic signals (D. Temel, 2017). Random methods are applied to random images from the lacking categories including crop, scale, translate, rotate, shear and mirror, until the quota for minimum images are met. The approach here was based on the work of Rusanov (2020), where the minimum of 500 images per category was suggested through experiment. The training set increased from 39211 to 42739 as per Figure 2.
 
-![](RackMultipart20211203-4-13g499e_html_20b9a6cbe03c9c43.png) ![](RackMultipart20211203-4-13g499e_html_bd6c11888318f2d4.png)
-
-**Figure 1: Data Augmentation to create a minimum of 500 images from each category**
+<p align="center">
+<img src="./images/figure_2.png" width=80%>
+</p>
 
 **3.3**  **Normalise the Dataset**
 
@@ -50,14 +52,12 @@ To normalise the data, each numeric value representing the RGB channel was divid
 | **Dataset** | **N1** | **N2** | **N3** | **N4** | **Total Data Points** |
 | --- | --- | --- | --- | --- | --- |
 | Train\_Images | 42739 | 50 | 50 | 3 | 320,543,540 |
-| Train\_Labels | 42739 | 43 |
- |
- | 1,837,777 |
+| Train\_Labels | 42739 | 43 | 0 | 0 | 1,837,777 |
 
 **Table 1: Total Initial Data Points.**
 
-1.
-# The Network
+
+# 4. The Network
 
 One decision that has to be made is where along the pretrained to accept the output. The closer the design of the network is to what is required, the further along the network the output can be accepted. One possible solution to building this CNN would be to create one from scratch. However, by using a pre-existing trained base model, all that is needed is to change the final few layers to make it work with the new dataset. Therefore, when the VGG16 net was downloaded, the three fully connected layers (FCL) were excluded. The below configuration was used for the top layer of the network.
 
@@ -66,48 +66,19 @@ One decision that has to be made is where along the pretrained to accept the out
 3. **Dense Layer** - Sigmoid Activation – single fully connected layer for the purpose of learning the new images (transfer learning).
 4. **Dense Layer** - Softmax Activation – The softmax layer will be used to represent the relative probabilities of each of the classes.
 
-Layer (type) Output Shape Param #
+<p align="center">
+<img src="./images/figure_3.png" width=80%>
+</p>
 
-=================================================================
 
-vgg16 (Functional) (None, 1, 1, 512) 14714688
+# 5. Training and Testing Model
 
-\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
-
-batch\_normalization\_2 (Batch (None, 1, 1, 512) 2048
-
-\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
-
-flatten\_2 (Flatten) (None, 512) 0
-
-\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
-
-dense\_4 (Dense) (None, 1024) 525312
-
-\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
-
-dense\_5 (Dense) (None, 43) 44075
-
-=================================================================
-
-Total params: 15,286,123
-
-Trainable params: 15,285,099
-
-Non-trainable params: 1,024
-
-**Figure 3: Network Configuration**
-
-1.
-# Training and Testing Model
-
-  1.
-# Choosing Hyperparameters
+## Choosing Hyperparameters
 
 An iterative approach was taken in training the model to recognise the 43 separate classes. There were a number of hyperparameters that needed to be selected with including epoch, batch size, learning rate. The batch size would determine the iterations needed to be performed per epoch and amount of memory used for each iteration.
 
-  1.
-# Test Results
+
+## Test Results
 
 A number of tests were completed with various parameters. In Run 2 the image size was changed to 32px to reduce the number of datapoints, and the learning rate was increased by a factor of 10 to examine the impact on the result. In Run 3, the VGG19 classifier was used to examine the impact on accuracy and training performance. In Run 4, the impact of the ReLu activation function in the dense\_4 FCL was examined. Highest test accuracy achieved was 96.36%. Figure 4 below shows the training accuracy of Run 3, with 3 epochs.
 
@@ -120,9 +91,10 @@ A number of tests were completed with various parameters. In Run 2 the image siz
 
 **Table 2: Test Results for Run 1-4**
 
-![](RackMultipart20211203-4-13g499e_html_9debddc1913d4c3f.png)
+<p align="center">
+<img src="./images/figure_4.png" width=80%>
+</p>
 
-**Figure 4: Training Accuracy for Run 3**
 
 # Conclusion
 
